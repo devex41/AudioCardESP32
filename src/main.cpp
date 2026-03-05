@@ -4,6 +4,7 @@
 #include <driver\uart.h>
 #include <freertos\FreeRTOS.h>
 #include <freertos\task.h>
+#include <freertos\semphr.h>
 #include <driver\gpio.h>
 #include <string>
 #include <stdarg.h>
@@ -24,15 +25,27 @@
 #define UART_PORT UART_NUM_0
 #define DELAY_MS 1000
 
+#define ADC_FRAME_VAL 10
+#define ADC_FREQUENCY 48000
+
+
 inline void init();
 
+static adc_continuous_handle_t adc_handle;
+static TaskHandle_t adc_task_handle;
 
+static bool IRAM_ATTR adc_conv_done_callback(adc_continuous_handle_t handle, const adc_continuous_evt_data_t* edata, void* user_data) {
+    BaseType_t mustYield = pdFALSE;
+    //Notify that ADC continuous driver has done enough number of conversions
+    vTaskNotifyGiveFromISR(adc_task_handle, &mustYield);
 
+    return (mustYield == pdTRUE);
+}
 
 BEGIN_EXTERN_C
 void app_main() {
     init();
-
+    adc_continuous_start(adc_handle);
     // uart_write_bytes(UART_PORT, data, strlen(data));
     // printf(data);
     // xTaskCreatePinnedToCore(task_hi, "hi", 4096, NULL, 5, NULL, 0);
@@ -45,21 +58,29 @@ END_EXTERN_C
 
 
 inline void init() {
-    adc_digi_init_config_t init_config = {
-        .adc1_chan_mask = BIT(ADC1_CHANNEL_0),
-        .max_store_buf_size = 1024,
-        .conv_num_each_intr = SOC_ADC_DIGI_DATA_BYTES_PER_CONV * 8
+    adc_continuous_handle_cfg_t adc_handle_config = {
+        .max_store_buf_size = 4 * ADC_FRAME_VAL * 5,
+        .conv_frame_size = 4 * ADC_FRAME_VAL
     };
-    adc_digi_initialize(&init_config);
 
-    adc_digi_configuration_t config = {
-        .pattern_num = 1,
-        .sample_freq_hz = 48000,
+    adc_digi_pattern_config_t adc_pattern[1] = {
+        .channel = ADC_CHANNEL_0
+    };
+
+    adc_continuous_config_t adc_config = {
+        .adc_pattern = adc_pattern,
         .conv_mode = ADC_CONV_SINGLE_UNIT_1,
-        .format = ADC_DIGI_OUTPUT_FORMAT_TYPE1
+        .format = ADC_DIGI_OUTPUT_FORMAT_TYPE1,
+        .pattern_num = 1,
+        .sample_freq_hz = ADC_FREQUENCY
+    };
+    adc_continuous_evt_cbs_t adc_callback = {
+        .on_conv_done = adc_conv_done_callback
     };
 
-    adc_digi_controller_configure(&config);
+    adc_continuous_new_handle(&adc_handle_config, &adc_handle);
+    adc_continuous_config(adc_handle, &adc_config);
+    adc_continuous_register_event_callbacks(adc_handle, &adc_callback, NULL);
 
 
     static QueueHandle_t uart_queue;
