@@ -7,8 +7,8 @@
 #include <driver\gpio.h>
 #include <string>
 #include <stdarg.h>
-#include <driver/dac_continuous.h>
-#include <driver/adc.h>
+#include <driver/dac_cosine.h>
+#include <esp_adc/adc_continuous.h>
 
 
 #ifdef __cplusplus
@@ -55,9 +55,26 @@ inline void init() {
     adc_digi_configuration_t config = {
         .pattern_num = 1,
         .sample_freq_hz = 48000,
-        .conv_mode = ADC_CONV_SINGLE_UNIT_1
+        .conv_mode = ADC_CONV_SINGLE_UNIT_1,
+        .format = ADC_DIGI_OUTPUT_FORMAT_TYPE1
     };
 
     adc_digi_controller_configure(&config);
+
+
+    static QueueHandle_t uart_queue;
+    uart_driver_install(UART_PORT, UART_BUFFER_SIZE, UART_BUFFER_SIZE, 10, &uart_queue, 0);
+    uart_config_t uart_config = {
+        .baud_rate = 250000,
+        .data_bits = UART_DATA_8_BITS,
+        .parity = UART_PARITY_DISABLE,
+        .stop_bits = UART_STOP_BITS_1,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+        .rx_flow_ctrl_thresh = 122
+    };
+    // Configure UART parameters
+    uart_param_config(UART_PORT, &uart_config);
+
+
 
 }
