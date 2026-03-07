@@ -6,7 +6,6 @@
 #include <freertos\task.h>
 #include <freertos\semphr.h>
 #include <driver\gpio.h>
-#include <string>
 #include <stdarg.h>
 #include <driver/dac_cosine.h>
 #include <esp_adc/adc_continuous.h>
@@ -31,24 +30,45 @@
 
 inline void init();
 
-static adc_continuous_handle_t adc_handle;
-static TaskHandle_t adc_task_handle;
+static adc_continuous_handle_t adc_handle = NULL;
+static TaskHandle_t adc_task_handle = NULL;
+uint32_t adc_ret_num = 0;
+uint8_t adc_buf[ADC_FRAME_VAL * sizeof(adc_digi_output_data_t)] = { 0 };
+
+
 
 static bool IRAM_ATTR adc_conv_done_callback(adc_continuous_handle_t handle, const adc_continuous_evt_data_t* edata, void* user_data) {
     BaseType_t mustYield = pdFALSE;
     //Notify that ADC continuous driver has done enough number of conversions
     vTaskNotifyGiveFromISR(adc_task_handle, &mustYield);
-
+    portYIELD_FROM_ISR(mustYield);
     return (mustYield == pdTRUE);
+}
+
+void adc_task(void*) {
+    for (;;) {
+
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+
+        adc_continuous_read(adc_handle, adc_buf, sizeof(adc_buf), &adc_ret_num, 0);
+        adc_digi_output_data_t* data = (adc_digi_output_data_t*)adc_buf;
+
+        for (int i = 0; i < sizeof(data); ++i) {
+            uart_write_bytes(UART_PORT, (uint16_t*)data[0].type1.data, 2);
+        }
+
+    }
+    //data.type1.data[1];
+    //
 }
 
 BEGIN_EXTERN_C
 void app_main() {
     init();
+    xTaskCreatePinnedToCore(adc_task, "adc_task", 4096, NULL, 5, &adc_task_handle, 0);
     adc_continuous_start(adc_handle);
     // uart_write_bytes(UART_PORT, data, strlen(data));
     // printf(data);
-    // xTaskCreatePinnedToCore(task_hi, "hi", 4096, NULL, 5, NULL, 0);
     // xTaskCreatePinnedToCore(task_bye, "bye", 4096, NULL, 10, NULL, 1);
     for (;;) {
         vTaskDelay(pdMS_TO_TICKS(DELAY_MS));
@@ -59,12 +79,12 @@ END_EXTERN_C
 
 inline void init() {
     adc_continuous_handle_cfg_t adc_handle_config = {
-        .max_store_buf_size = 4 * ADC_FRAME_VAL * 5,
-        .conv_frame_size = 4 * ADC_FRAME_VAL
+        .max_store_buf_size = ADC_FRAME_VAL * 5 * sizeof(adc_digi_output_data_t),
+        .conv_frame_size = ADC_FRAME_VAL * sizeof(adc_digi_output_data_t)
     };
 
     adc_digi_pattern_config_t adc_pattern[1] = {
-        .channel = ADC_CHANNEL_0
+        [0] .channel = ADC_CHANNEL_0
     };
 
     adc_continuous_config_t adc_config = {
@@ -81,12 +101,12 @@ inline void init() {
     adc_continuous_new_handle(&adc_handle_config, &adc_handle);
     adc_continuous_config(adc_handle, &adc_config);
     adc_continuous_register_event_callbacks(adc_handle, &adc_callback, NULL);
-
+    //adc_continuous_read(adc_handle, adc_buf, sizeof(adc_buf), &adc_ret_num, 0);
 
     static QueueHandle_t uart_queue;
     uart_driver_install(UART_PORT, UART_BUFFER_SIZE, UART_BUFFER_SIZE, 10, &uart_queue, 0);
     uart_config_t uart_config = {
-        .baud_rate = 250000,
+        .baud_rate = 115200,
         .data_bits = UART_DATA_8_BITS,
         .parity = UART_PARITY_DISABLE,
         .stop_bits = UART_STOP_BITS_1,
