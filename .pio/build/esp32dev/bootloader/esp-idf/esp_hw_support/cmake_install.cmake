@@ -34,11 +34,11 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("C:/Users/user/Documents/PlatformIO/Projects/firstESP32/.pio/build/esp32dev/bootloader/esp-idf/esp_hw_support/port/esp32/cmake_install.cmake")
+  include("C:/Users/user/Documents/PlatformIO/Projects/AudioCardESP32/.pio/build/esp32dev/bootloader/esp-idf/esp_hw_support/port/esp32/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("C:/Users/user/Documents/PlatformIO/Projects/firstESP32/.pio/build/esp32dev/bootloader/esp-idf/esp_hw_support/lowpower/cmake_install.cmake")
+  include("C:/Users/user/Documents/PlatformIO/Projects/AudioCardESP32/.pio/build/esp32dev/bootloader/esp-idf/esp_hw_support/lowpower/cmake_install.cmake")
 endif()
 

@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/user/Documents/PlatformIO/Projects/firstESP32/src
+# Install script for directory: C:/Users/user/Documents/PlatformIO/Projects/AudioCardESP32/src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
