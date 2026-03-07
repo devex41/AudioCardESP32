@@ -1,4 +1,4 @@
-/* * Data converted from c:\Users\user\Documents\PlatformIO\Projects\firstESP32\.pio\build\esp32dev\x509_crt_bundle
+/* * Data converted from c:\Users\user\Documents\PlatformIO\Projects\AudioCardESP32\.pio\build\esp32dev\x509_crt_bundle
  */
 .data
 #if !defined (__APPLE__) && !defined (__linux__)

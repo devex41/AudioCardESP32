@@ -1,6 +1,6 @@
 /* Automatically generated file; DO NOT EDIT */
 /* Espressif IoT Development Framework Linker Script */
-/* Generated from: C:\Users\user\Documents\PlatformIO\Projects\firstESP32\.pio\build\esp32dev\esp-idf\esp_system\ld\sections.ld.in */
+/* Generated from: C:\Users\user\Documents\PlatformIO\Projects\AudioCardESP32\.pio\build\esp32dev\esp-idf\esp_system\ld\sections.ld.in */
 
 /*
  * SPDX-FileCopyrightText: 2021 Espressif Systems (Shanghai) CO LTD

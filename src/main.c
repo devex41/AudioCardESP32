@@ -28,10 +28,10 @@
 #define ADC_FREQUENCY 48000
 
 
-inline void init();
+void init();
 
-static adc_continuous_handle_t adc_handle = NULL;
-static TaskHandle_t adc_task_handle = NULL;
+adc_continuous_handle_t adc_handle = NULL;
+TaskHandle_t adc_task_handle = NULL;
 uint32_t adc_ret_num = 0;
 uint8_t adc_buf[ADC_FRAME_VAL * sizeof(adc_digi_output_data_t)] = { 0 };
 
@@ -54,7 +54,7 @@ void adc_task(void*) {
         adc_digi_output_data_t* data = (adc_digi_output_data_t*)adc_buf;
 
         for (int i = 0; i < sizeof(data); ++i) {
-            uart_write_bytes(UART_PORT, (uint16_t*)data[0].type1.data, 2);
+            uart_write_bytes(UART_PORT, (uint8_t*)data[0].type1.data, 2);
         }
 
     }
@@ -77,7 +77,7 @@ void app_main() {
 END_EXTERN_C
 
 
-inline void init() {
+void init() {
     adc_continuous_handle_cfg_t adc_handle_config = {
         .max_store_buf_size = ADC_FRAME_VAL * 5 * sizeof(adc_digi_output_data_t),
         .conv_frame_size = ADC_FRAME_VAL * sizeof(adc_digi_output_data_t)
