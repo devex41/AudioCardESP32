@@ -1,25 +1,27 @@
 import serial
 import numpy as np
 import matplotlib.pyplot as plt
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
 
 PORT = "COM3"
 BAUD = 1200000
 
-BLOCK_BYTES = 64
+BLOCK_BYTES = 64*2
 SAMPLES_PER_BLOCK = BLOCK_BYTES // 2
-TOTAL_SAMPLES = 64 * 20
+TOTAL_SAMPLES = 64 * 100 *2
 
 ser = serial.Serial(PORT, BAUD, timeout=1)
-ser.set_buffer_size(4096*10)
+ser.set_buffer_size(4096)
 
 
 # ждём первый \n
-# ser.read_until(b'\xff\xff')
+ser.read_until(b'\xff\xff')
 
 samples = []
 
 while len(samples) < TOTAL_SAMPLES:
-    block = ser.read(66)
+    block = ser.read(BLOCK_BYTES+2)
     # block = ser.read_until(b'\xff\xff')
     print(len(block))
     print('------------------------------------')

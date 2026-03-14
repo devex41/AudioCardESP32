@@ -20,20 +20,20 @@
 #endif
 
 
-#define UART_BUFFER_SIZE 1024
+#define UART_BUFFER_SIZE 1024*4
 #define UART_PORT UART_NUM_0
 #define UART_BAUDRATE 1200000
 #define DELAY_MS 1000
 
 
-#define ADC_FRAME_VAL 32
+#define ADC_FRAME_VAL 64
 #define ADC_FREQUENCY 48000
 #define ADC_UART_SAMPLE_BYTEWIDTH 2   // 1 or 2 byte for sample
 #define MEASURE_PER_SAMPLE 4          // must be multiple of two
 #if (0b1 == MEASURE_PER_SAMPLE & 0b1 &&  MEASURE_PER_SAMPLE != 1)
 #error "MEASURE_PER_SAMPLE must be multiple of two"
 #endif
-#define ADC_FREQ_TO_SAMPLE_COEF (117350.f/48000.f)
+#define ADC_FREQ_TO_SAMPLE_COEF (117345.f/48000.f)
 #define ADC_SAMPLE_RATE ((unsigned long) (ADC_FREQUENCY * ADC_FREQ_TO_SAMPLE_COEF * MEASURE_PER_SAMPLE))
 
 void init();
