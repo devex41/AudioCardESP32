@@ -9,6 +9,7 @@
 #include <stdarg.h>
 #include <driver/dac_cosine.h>
 #include <esp_adc/adc_continuous.h>
+#include <esp_cpu.h>
 
 
 #ifdef __cplusplus
@@ -29,12 +30,15 @@
 #define ADC_FRAME_VAL 64
 #define ADC_FREQUENCY 48000
 #define ADC_UART_SAMPLE_BYTEWIDTH 2   // 1 or 2 byte for sample
-#define MEASURE_PER_SAMPLE 4          // must be multiple of two
+#define MEASURE_PER_SAMPLE 8          // must be multiple of two
 #if (0b1 == MEASURE_PER_SAMPLE & 0b1 &&  MEASURE_PER_SAMPLE != 1)
 #error "MEASURE_PER_SAMPLE must be multiple of two"
 #endif
 #define ADC_FREQ_TO_SAMPLE_COEF (117345.f/48000.f)
 #define ADC_SAMPLE_RATE ((unsigned long) (ADC_FREQUENCY * ADC_FREQ_TO_SAMPLE_COEF * MEASURE_PER_SAMPLE))
+
+#define FILTR_COUNT 6
+
 
 void init();
 
@@ -46,9 +50,10 @@ SemaphoreHandle_t mutex;
 
 uint32_t adc_ret_num = 0;
 adc_digi_output_data_t adc_buf[(ADC_FRAME_VAL * SOC_ADC_DIGI_DATA_BYTES_PER_CONV * MEASURE_PER_SAMPLE) / sizeof(adc_digi_output_data_t)] = { 0 };
-// uint16_t buf[5 + 3][ADC_FRAME_VAL];
-// volatile int ff = 0;
-uint16_t bb = 0xFFFF;
+
+int16_t val[((sizeof(adc_buf) / SOC_ADC_DIGI_DATA_BYTES_PER_CONV) / MEASURE_PER_SAMPLE + 1) + (FILTR_COUNT - 1)];
+
+uint16_t pack_header = 0xFFFF;
 
 static bool IRAM_ATTR adc_conv_done_callback(adc_continuous_handle_t handle, const adc_continuous_evt_data_t* edata, void* user_data) {
     BaseType_t mustYield = pdFALSE;
@@ -63,7 +68,8 @@ void adc_task(void*) {
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
         adc_continuous_read(adc_handle, (uint8_t*)adc_buf, sizeof(adc_buf), &adc_ret_num, 0);
         if (sizeof(adc_buf) != (int)adc_ret_num) {
-            printf("blyat");
+            continue;
+            // printf("blyat");
         }
 
 
@@ -77,25 +83,37 @@ void adc_task(void*) {
 
 #elif (ADC_UART_SAMPLE_BYTEWIDTH == 2)
 
-        int16_t val[(sizeof(adc_buf) / SOC_ADC_DIGI_DATA_BYTES_PER_CONV) / MEASURE_PER_SAMPLE + 1];
-
-        for (int i = 0; i < (sizeof(val) / 2 - 1); ++i) {
-            val[i] = (adc_buf[i * 8].type1.data + adc_buf[(i * 8) + 2].type1.data + adc_buf[(i * 8) + 4].type1.data + adc_buf[(i * 8) + 6].type1.data) >> (MEASURE_PER_SAMPLE / 2);
+        // unsigned int aaa = (unsigned int)esp_cpu_get_cycle_count();
+        for (int i = 0; i < (sizeof(val) / 2 - 1 - (FILTR_COUNT - 1)); ++i) {
+            // val[i] = (adc_buf[i * 8].type1.data + adc_buf[(i * 8) + 2].type1.data + adc_buf[(i * 8) + 4].type1.data + adc_buf[(i * 8) + 6].type1.data >> 2;
+            val[i + (FILTR_COUNT - 1)] = (adc_buf[i * 16].type1.data + adc_buf[(i * 16) + 2].type1.data + adc_buf[(i * 16) + 4].type1.data + adc_buf[(i * 16) + 6].type1.data
+                + adc_buf[i * 16 + 8].type1.data + adc_buf[(i * 16) + 10].type1.data + adc_buf[(i * 16) + 12].type1.data + adc_buf[(i * 16) + 14].type1.data) >> (3);
             // val[i] = adc_buf[i].type1.data;
-            if ((val[i] & 0x00FF) == 0xFF) {
-                val[i] -= 1;
+            if ((val[i + (FILTR_COUNT - 1)] & 0x00FF) == 0xFF) {
+                val[i + (FILTR_COUNT - 1)] -= 1;
             }
         }
-        val[(sizeof(val) / 2 - 1)] = 0xFFFF;
-        // xSemaphoreTake(mutex, portMAX_DELAY);
-        // if (ff < 3 + 3) {
-        //     memcpy(buf[ff], val, sizeof(val));
-        //     ++ff;
-        // }
-        // xSemaphoreGive(mutex);
+        // unsigned int bbb = (unsigned int)esp_cpu_get_cycle_count();
+        // printf("-------------------------\n");
+        // printf("%d \n", (unsigned int)aaa);
+        // printf("%d \n", (unsigned int)bbb);
+        // printf("%d \n", (unsigned int)(bbb - aaa));
 
-        uart_write_bytes(UART_PORT, (const void*)&val, sizeof(val));
+        // скользящий средний фильтр
+        for (int i = 0; i < ((sizeof(val) / 2 - 1) - (FILTR_COUNT - 1)); ++i) {
+            for (int l = 1; l < FILTR_COUNT; ++l) {
+                val[i] += val[i + l];
+            }
+            val[i] = val[i] / FILTR_COUNT;
+        }
 
+        // val[(sizeof(val) / 2 - 1)] = 0xFFFF;
+
+        uart_write_bytes(UART_PORT, (const void*)&val, (sizeof(val) - 2 - (FILTR_COUNT - 1) * sizeof(*val)));
+        uart_write_bytes(UART_PORT, (const void*)&pack_header, sizeof(pack_header));
+        for (int i = 0; i < (FILTR_COUNT - 1); ++i) {
+            val[i] = val[(sizeof(val) / 2 - FILTR_COUNT) + i];
+        }
 
 #else 
 #error "ADC_UART_SAMPLE_BYTEWIDTH must be 1 or 2"
@@ -145,7 +163,7 @@ void init() {
     adc_continuous_config_t adc_config = {
         .pattern_num = 1,
         .adc_pattern = adc_pattern,
-        .sample_freq_hz = ADC_SAMPLE_RATE,
+        .sample_freq_hz = (ADC_SAMPLE_RATE),
         .conv_mode = ADC_CONV_SINGLE_UNIT_1,
         .format = ADC_DIGI_OUTPUT_FORMAT_TYPE1,
     };
@@ -174,7 +192,7 @@ void init() {
         .chan_id = DAC_CHAN_0,
         .freq_hz = 380,
         .atten = DAC_COSINE_ATTEN_DB_6,
-        .offset = 64
+        .offset = 67
     };
     dac_cosine_new_channel(&dac_cosine_config, &dac_cosine_handle);
 

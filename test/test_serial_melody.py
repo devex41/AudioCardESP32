@@ -20,21 +20,21 @@ PACKET_SIZE = 130
 data_queue = queue.Queue(maxsize=500)
 
 # --- Настройки Мока ---
-# MOCK_FS = 48000
-# MOCK_FREQ = 440.0
-# phase_accumulator = 0
+MOCK_FS = 48000
+MOCK_FREQ = 255.0
+phase_accumulator = 0
 
-# def mock_audio_callback(outdata, frames, time_info, status):
-#     global phase_accumulator
-#     if status:
-#         print(f"Status: {status}", flush=True)
+def mock_audio_callback(outdata, frames, time_info, status):
+    global phase_accumulator
+    if status:
+        print(f"Status: {status}", flush=True)
 
-#     t = (np.arange(frames) + phase_accumulator) / MOCK_FS
-#     mock_data = 0.5 * np.sin(2 * np.pi * MOCK_FREQ * t)
-#     print(mock_data)
-#     outdata[:] = mock_data.reshape(-1, 1).astype(np.float32)
-#     phase_accumulator += frames
-#     phase_accumulator %= MOCK_FS 
+    t = (np.arange(frames) + phase_accumulator) / MOCK_FS
+    mock_data = 0.5 * np.sin(2 * np.pi * MOCK_FREQ * t)
+    print(mock_data)
+    outdata[:] = mock_data.reshape(-1, 1).astype(np.float32)
+    phase_accumulator += frames
+    phase_accumulator %= MOCK_FS 
 
 
 def audio_callback(outdata, frames, time, status):
@@ -46,6 +46,7 @@ def audio_callback(outdata, frames, time, status):
         data = data_queue.get_nowait()
         outdata[:] = data.reshape(-1, 1)
     except queue.Empty:
+        print("empty")
         outdata.fill(0) # Если данных нет — тишина, а не треск
 
 # --- НОВАЯ ФУНКЦИЯ ПОИСКА УСТРОЙСТВА ---
@@ -116,6 +117,7 @@ def main():
                     ints = np.frombuffer(raw_data[i*130:(i*130)+128], dtype='<u2')
                     floats = (ints.astype(np.float32) - 921) / 2048.0
                     floats = np.clip(floats, -1.0, 1.0)
+                    # print(floats)
                     
                     data_queue.put(floats)
 

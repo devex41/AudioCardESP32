@@ -9,7 +9,7 @@ BAUD = 1200000
 
 BLOCK_BYTES = 64*2
 SAMPLES_PER_BLOCK = BLOCK_BYTES // 2
-TOTAL_SAMPLES = 64 * 100 *2
+TOTAL_SAMPLES = 64 * 30 *2
 
 ser = serial.Serial(PORT, BAUD, timeout=1)
 ser.set_buffer_size(4096)
@@ -23,20 +23,21 @@ samples = []
 while len(samples) < TOTAL_SAMPLES:
     block = ser.read(BLOCK_BYTES+2)
     # block = ser.read_until(b'\xff\xff')
-    print(len(block))
-    print('------------------------------------')
+    # print(len(block))
+    # print('------------------------------------')
     #block = ser.read_until(bytes(4095))
     
-    print(block)
+    # print(block)
     block = block[:-2]
-    print(block)
-    print('------------------------------------')
+    # print(block)
+    # print('------------------------------------')
     if len(block) != BLOCK_BYTES:
        
         print(len(block), 'qq')
         continue
 
     values = np.frombuffer(block, dtype='<u2')  # little-endian uint16
+    print(values)
     samples.extend(values)
 
 
@@ -50,7 +51,7 @@ print("Min:", data.min())
 print("Max:", data.max())
 
 plt.figure(figsize=(12,4))
-plt.plot(data, marker='o')
+plt.plot(data)
 plt.title("48000 ADC samples")
 plt.xlabel("Sample")
 plt.ylabel("ADC value")
