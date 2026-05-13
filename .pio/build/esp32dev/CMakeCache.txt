@@ -299,7 +299,7 @@ ENABLE_PROGRAMS:BOOL=
 ENABLE_TESTING:BOOL=
 
 //No help, variable specified on the command line.
-EXTRA_COMPONENT_DIRS:PATH=C:/Users/user/Documents/PlatformIO/Projects/AudioCardESP32/src
+EXTRA_COMPONENT_DIRS:PATH=c:/Users/user/Documents/PlatformIO/Projects/AudioCardESP32/src
 
 //Generate the auto-generated files as needed
 GEN_FILES:BOOL=
@@ -344,7 +344,7 @@ PYTHON:UNINITIALIZED=C:\Users\user\.platformio\penv\.espidf-5.4.0\Scripts\python
 PYTHON_DEPS_CHECKED:UNINITIALIZED=1
 
 //No help, variable specified on the command line.
-SDKCONFIG:UNINITIALIZED=C:\Users\user\Documents\PlatformIO\Projects\AudioCardESP32\sdkconfig.esp32dev
+SDKCONFIG:UNINITIALIZED=c:\Users\user\Documents\PlatformIO\Projects\AudioCardESP32\sdkconfig.esp32dev
 
 //Allow unsafe builds. These builds ARE NOT SECURE.
 UNSAFE_BUILD:BOOL=OFF

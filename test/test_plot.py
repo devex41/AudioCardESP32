@@ -9,7 +9,7 @@ BAUD = 1200000
 
 BLOCK_BYTES = 64*2
 SAMPLES_PER_BLOCK = BLOCK_BYTES // 2
-TOTAL_SAMPLES = 64 * 30 *2
+TOTAL_SAMPLES = 64 * 100 *2
 
 ser = serial.Serial(PORT, BAUD, timeout=1)
 ser.set_buffer_size(4096)

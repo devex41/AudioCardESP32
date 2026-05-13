@@ -126,7 +126,7 @@ void app_main() {
     init();
     mutex = xSemaphoreCreateMutex();
     xTaskCreatePinnedToCore(adc_task, "adc_task", 4096, NULL, 5, &adc_task_handle, 0);
-    dac_cosine_start(dac_cosine_handle);
+    // dac_cosine_start(dac_cosine_handle);
     adc_continuous_start(adc_handle);
     for (;;) {
         // xSemaphoreTake(mutex, portMAX_DELAY);
@@ -188,12 +188,12 @@ void init() {
     };
     // Configure UART parameters
     uart_param_config(UART_PORT, &uart_config);
-    dac_cosine_config_t dac_cosine_config = {
-        .chan_id = DAC_CHAN_0,
-        .freq_hz = 380,
-        .atten = DAC_COSINE_ATTEN_DB_6,
-        .offset = 67
-    };
-    dac_cosine_new_channel(&dac_cosine_config, &dac_cosine_handle);
+    // dac_cosine_config_t dac_cosine_config = {
+    //     .chan_id = DAC_CHAN_0,
+    //     .freq_hz = 380,
+    //     .atten = DAC_COSINE_ATTEN_DB_6,
+    //     .offset = 67
+    // };
+    // dac_cosine_new_channel(&dac_cosine_config, &dac_cosine_handle);
 
 }

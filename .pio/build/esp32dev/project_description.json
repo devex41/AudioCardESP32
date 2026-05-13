@@ -1,7 +1,7 @@
 {
     "version":            "1.1",
     "project_name":       "firstESP32",
-    "project_version":    "4f2b55c-dirty",
+    "project_version":    "8020c81-dirty",
     "project_path":       "C:/Users/user/Documents/PlatformIO/Projects/AudioCardESP32",
     "idf_path":           "C:/Users/user/.platformio/packages/framework-espidf",
     "build_dir":          "C:/Users/user/Documents/PlatformIO/Projects/AudioCardESP32/.pio/build/esp32dev",
