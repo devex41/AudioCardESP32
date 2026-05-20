@@ -57,7 +57,6 @@ uint16_t pack_header = 0xFFFF;
 
 static bool IRAM_ATTR adc_conv_done_callback(adc_continuous_handle_t handle, const adc_continuous_evt_data_t* edata, void* user_data) {
     BaseType_t mustYield = pdFALSE;
-    //Notify that ADC continuous driver has done enough number of conversions
     vTaskNotifyGiveFromISR(adc_task_handle, &mustYield);
     portYIELD_FROM_ISR(mustYield);
     return (mustYield == pdTRUE);
@@ -69,7 +68,6 @@ void adc_task(void*) {
         adc_continuous_read(adc_handle, (uint8_t*)adc_buf, sizeof(adc_buf), &adc_ret_num, 0);
         if (sizeof(adc_buf) != (int)adc_ret_num) {
             continue;
-            // printf("blyat");
         }
 
 
@@ -83,7 +81,6 @@ void adc_task(void*) {
 
 #elif (ADC_UART_SAMPLE_BYTEWIDTH == 2)
 
-        // unsigned int aaa = (unsigned int)esp_cpu_get_cycle_count();
         for (int i = 0; i < (sizeof(val) / 2 - 1 - (FILTR_COUNT - 1)); ++i) {
             // val[i] = (adc_buf[i * 8].type1.data + adc_buf[(i * 8) + 2].type1.data + adc_buf[(i * 8) + 4].type1.data + adc_buf[(i * 8) + 6].type1.data >> 2;
             val[i + (FILTR_COUNT - 1)] = (adc_buf[i * 16].type1.data + adc_buf[(i * 16) + 2].type1.data + adc_buf[(i * 16) + 4].type1.data + adc_buf[(i * 16) + 6].type1.data
@@ -106,8 +103,6 @@ void adc_task(void*) {
             }
             val[i] = val[i] / FILTR_COUNT;
         }
-
-        // val[(sizeof(val) / 2 - 1)] = 0xFFFF;
 
         uart_write_bytes(UART_PORT, (const void*)&val, (sizeof(val) - 2 - (FILTR_COUNT - 1) * sizeof(*val)));
         uart_write_bytes(UART_PORT, (const void*)&pack_header, sizeof(pack_header));
@@ -141,7 +136,6 @@ void app_main() {
         //     }
         // }
         // xSemaphoreGive(mutex);
-        //printf("hel\n");
         vTaskDelay(pdMS_TO_TICKS(DELAY_MS));
     }
 }
@@ -186,7 +180,6 @@ void init() {
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
         .rx_flow_ctrl_thresh = 122
     };
-    // Configure UART parameters
     uart_param_config(UART_PORT, &uart_config);
     // dac_cosine_config_t dac_cosine_config = {
     //     .chan_id = DAC_CHAN_0,
