@@ -34,6 +34,6 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("C:/Users/user/Documents/PlatformIO/Projects/firstESP32/.pio/build/esp32dev/esp-idf/newlib/port/cmake_install.cmake")
+  include("C:/Users/user/Desktop/Projects/AudioCardESP32/.pio/build/esp32dev/esp-idf/newlib/port/cmake_install.cmake")
 endif()
 

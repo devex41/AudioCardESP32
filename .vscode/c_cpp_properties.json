@@ -8,12 +8,12 @@
         {
             "name": "PlatformIO",
             "includePath": [
-                "c:/Users/user/Documents/PlatformIO/Projects/firstESP32/include",
-                "c:/Users/user/Documents/PlatformIO/Projects/firstESP32/src",
+                "c:/Users/user/Documents/PlatformIO/Projects/AudioCardESP32/include",
+                "c:/Users/user/Documents/PlatformIO/Projects/AudioCardESP32/src",
                 "C:/Users/user/.platformio/packages/framework-espidf/components/xtensa/esp32/include",
                 "C:/Users/user/.platformio/packages/framework-espidf/components/xtensa/include",
                 "C:/Users/user/.platformio/packages/framework-espidf/components/xtensa/deprecated_include",
-                "C:/Users/user/Documents/PlatformIO/Projects/firstESP32/.pio/build/esp32dev/config",
+                "C:/Users/user/Documents/PlatformIO/Projects/AudioCardESP32/.pio/build/esp32dev/config",
                 "C:/Users/user/.platformio/packages/framework-espidf/components/newlib/platform_include",
                 "C:/Users/user/.platformio/packages/framework-espidf/components/freertos/config/include",
                 "C:/Users/user/.platformio/packages/framework-espidf/components/freertos/config/include/freertos",
@@ -175,12 +175,12 @@
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
-                    "c:/Users/user/Documents/PlatformIO/Projects/firstESP32/include",
-                    "c:/Users/user/Documents/PlatformIO/Projects/firstESP32/src",
+                    "c:/Users/user/Documents/PlatformIO/Projects/AudioCardESP32/include",
+                    "c:/Users/user/Documents/PlatformIO/Projects/AudioCardESP32/src",
                     "C:/Users/user/.platformio/packages/framework-espidf/components/xtensa/esp32/include",
                     "C:/Users/user/.platformio/packages/framework-espidf/components/xtensa/include",
                     "C:/Users/user/.platformio/packages/framework-espidf/components/xtensa/deprecated_include",
-                    "C:/Users/user/Documents/PlatformIO/Projects/firstESP32/.pio/build/esp32dev/config",
+                    "C:/Users/user/Documents/PlatformIO/Projects/AudioCardESP32/.pio/build/esp32dev/config",
                     "C:/Users/user/.platformio/packages/framework-espidf/components/newlib/platform_include",
                     "C:/Users/user/.platformio/packages/framework-espidf/components/freertos/config/include",
                     "C:/Users/user/.platformio/packages/framework-espidf/components/freertos/config/include/freertos",

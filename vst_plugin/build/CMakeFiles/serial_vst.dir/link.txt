@@ -1,0 +1,3 @@
+"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\serial_vst.dir/objects.a
+C:\mingw64\bin\ar.exe qc CMakeFiles\serial_vst.dir/objects.a @CMakeFiles\serial_vst.dir\objects1.rsp
+C:\mingw64\bin\cc.exe -shared -Wl,--kill-at C:/Users/user/Desktop/vst_plugin/serial_vst.def -o serial_vst.dll -Wl,--out-implib,libserial_vst.dll.a -Wl,--major-image-version,0,--minor-image-version,0 -Wl,--whole-archive CMakeFiles\serial_vst.dir/objects.a -Wl,--no-whole-archive @CMakeFiles\serial_vst.dir\linkLibs.rsp
